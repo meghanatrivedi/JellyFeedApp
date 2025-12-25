@@ -13,25 +13,21 @@ struct GestureHandlerView: View {
     var body: some View {
         Color.clear
             .contentShape(Rectangle())
-            .gesture(
-                LongPressGesture(minimumDuration: 0.2)
-                    .onChanged { _ in
-                        playerVM.pause()
-                    }
-                    .onEnded { _ in
-                        playerVM.play()
-                    }
-            )
+            // Detect long press to pause
+            .onLongPressGesture(minimumDuration: 0.2, pressing: { isPressing in
+                if isPressing {
+                    playerVM.pause()
+                } else {
+                    playerVM.play()
+                    playerVM.setRate(1.0) // Reset speed if they were fast-forwarding
+                }
+            }, perform: {})
+            // Simultaneous gesture for the 2x speed on the right side
             .simultaneousGesture(
-                LongPressGesture(minimumDuration: 0.1)
-                    .sequenced(before: DragGesture(minimumDistance: 0))
+                DragGesture(minimumDistance: 0)
                     .onChanged { value in
-                        switch value {
-                        case .second(true, let drag):
-                            if let location = drag?.location, location.x > UIScreen.main.bounds.width * 0.7 {
-                                playerVM.setRate(2.0)
-                            }
-                        default: break
+                        if value.location.x > UIScreen.main.bounds.width * 0.7 {
+                            playerVM.setRate(2.0)
                         }
                     }
                     .onEnded { _ in
@@ -40,4 +36,3 @@ struct GestureHandlerView: View {
             )
     }
 }
-

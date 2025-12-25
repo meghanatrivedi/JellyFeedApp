@@ -6,10 +6,13 @@
 //
 
 import Foundation
+import AVFoundation
 
-struct VideoModel: Identifiable {
+// MARK: - Models
+struct VideoModel: Identifiable, Equatable {
     let id: String
     let videoURL: URL
     let uploader: String
-    let duration: Double
+    var duration: Double
 }
+

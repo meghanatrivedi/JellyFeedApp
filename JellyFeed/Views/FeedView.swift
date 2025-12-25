@@ -19,19 +19,17 @@ struct FeedView: View {
                     ForEach(Array(vm.videos.enumerated()), id: \.offset) { index, video in
                         VideoPlayerView(
                             video: video,
-                            isActive: index == vm.currentIndex
+                            isActive: index == vm.currentIndex,
+                            onComplete: {
+                                vm.moveToNextVideo()
+                            }
                         )
-                        .frame(height: UIScreen.main.bounds.height) // ✅ full page
-                        .id(index) // ✅ THIS IS THE KEY
+                        .frame(height: UIScreen.main.bounds.height)
+                        .id(index)
                     }
                 }
             }
         }
-        .task {
-            await vm.loadFeed()
-        }
-        .onChange(of: vm.currentIndex) { _ in
-            vm.prefetch()
-        }
+        .task { await vm.loadFeed() }
     }
 }

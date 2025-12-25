@@ -6,13 +6,14 @@
 //
 
 import Foundation
-import Combine   // ✅ REQUIRED
+import Combine
+import SwiftUI
 
 @MainActor
-final class FeedViewModel: ObservableObject {   // ✅ Conformance added
+final class FeedViewModel: ObservableObject {
 
-    @Published var videos: [VideoModel] = []    // ✅ Published
-    @Published var currentIndex: Int = 0        // ✅ Published
+    @Published var videos: [VideoModel] = []
+    @Published var currentIndex: Int = 0  
 
     private let service = JellyFeedService()
 
@@ -35,4 +36,12 @@ final class FeedViewModel: ObservableObject {   // ✅ Conformance added
             VideoCacheManager.shared.prefetch(url: videos[index].videoURL)
         }
     }
+    
+    func moveToNextVideo() {
+            if currentIndex < videos.count - 1 {
+                withAnimation(.spring()) {
+                    currentIndex += 1
+                }
+            }
+        }
 }

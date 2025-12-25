@@ -8,25 +8,23 @@
 import Foundation
 import AVFoundation
 
+// MARK: - Service
 final class JellyFeedService {
-
     private let feedURL = URL(string: "https://api.jellyjelly.com/feed")!
 
     func fetchFeed() async throws -> [VideoModel] {
         let response: FeedResponse = try await APIClient.fetch(url: feedURL)
         
-        // We use a TaskGroup to load durations in parallel for speed
+        // Load metadata (durations) in parallel
         return await withTaskGroup(of: VideoModel?.self) { group in
             for item in response.feed {
                 group.addTask {
-                    guard let uploader = item.jelly.participants.first?.username else { return nil }
                     let asset = AVAsset(url: item.jelly.videoURL)
-                    let duration = await asset.loadDuration() // Use your extension!
-                    
+                    let duration = await asset.loadDuration()
                     return VideoModel(
                         id: item.jelly.id,
                         videoURL: item.jelly.videoURL,
-                        uploader: uploader,
+                        uploader: item.jelly.participants.first?.username ?? "unknown",
                         duration: duration
                     )
                 }
@@ -34,7 +32,7 @@ final class JellyFeedService {
             
             var results: [VideoModel] = []
             for await video in group {
-                if let video = video { results.append(video) }
+                if let v = video { results.append(v) }
             }
             return results
         }

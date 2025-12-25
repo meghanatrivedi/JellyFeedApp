@@ -12,7 +12,6 @@ struct JellyFeedApp: App {
     var body: some Scene {
         WindowGroup {
             FeedView()
-//            ContentView()
         }
     }
 }
